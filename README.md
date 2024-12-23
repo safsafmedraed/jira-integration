@@ -16,6 +16,7 @@ This project integrates with Jira to handle various operations such as fetching 
    cd jira-integration
 
 2. Install dependencies:
+    ```bash
     npm install
     # or
     yarn install
@@ -25,6 +26,7 @@ This project integrates with Jira to handle various operations such as fetching 
 ## Usage
 
 1. Start the server:
+    ```bash
     npm start
     # or
     yarn start
