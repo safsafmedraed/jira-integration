@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 const SECRET = process.env.JIRA_WEBHOOK_SECRET;
 
-export const verifyJiraWebhook = async (request, reply, done) => {
+export const authorizeJiraRequest = async (request, reply, done) => {
     const { headers, body } = request;
 
     const receivedSignature = headers["x-hub-signature"];
@@ -31,7 +31,7 @@ export const verifyJiraWebhook = async (request, reply, done) => {
     const hmac = crypto.createHmac('sha256', SECRET)
                       .update(JSON.stringify(body))
                       .digest('hex');
-
+        
     if (hmac !== receivedHmac) {
         return reply.status(403).send({
             status: 403,
@@ -41,5 +41,5 @@ export const verifyJiraWebhook = async (request, reply, done) => {
         });
     }
 
-    return done();
+     done();
 };

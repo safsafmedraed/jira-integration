@@ -1,4 +1,6 @@
 import axios from "axios";
+import logger from "../logger/index.js";
+import ErrorHandler from "../middleware/errorHandler.js";
 
 const jql = `status = "${process.env.JIRA_STATUS}" AND issuetype = "${process.env.JIRA_TASK}"`;
 const fields= 'summary,status,assignee,created,updated,priority,issuetype,description';
@@ -23,8 +25,8 @@ export const getJiraTickets = async () => {
 
     return response.data;
   } catch (error) {
-    console.error("Error fetching Jira tickets:", error);
-    throw error.response ? error.response.data : error.message;
+    logger.error("Error fetching Jira tickets:", error);
+    return new ErrorHandler(error, reply);
   }
 };
 
@@ -46,23 +48,11 @@ export const updateJiraTicketStatus = async (ticketId, reply) => {
       }
     );
 
-    console.log(`Ticket ${ticketId} updated successfully.`);
+    logger.info(`Ticket ${ticketId} updated successfully.`);
     return reply.status(200).send(`Ticket ${ticketId} updated successfully.`);
   } catch (error) {
-    console.error("Error updating Jira ticket:",    error.response.data);
-
-    if (error.response) {
-      // If there is a response, use it to send more specific information
-      return reply.status(error.response.status).send({
-        status: error.response.status,
-        message: error.response.data,
-      });
-    } else {
-      return reply.status(500).send({
-        status: 500,
-        message: error.message,
-      });
-    }
+    logger.error("Error updating Jira ticket:",    error.response.data);
+    return new ErrorHandler(error, reply);
   }
 };
 
@@ -72,8 +62,7 @@ export const listenToJiraWebhook = async (request, reply) => {
 
     if (body.webhookEvent === "jira:issue_updated") {
       const { issue } = body;
-      console.log("Jira issue updated:", issue.key);
-      console.log("Jira issue updated:", issue.fields.status.name);
+      logger.info("Jira issue updated:", issue.key);
       
       if (issue.fields.status.name === "In Progress") {
         return  await updateJiraTicketStatus(issue.key,reply);
@@ -81,14 +70,15 @@ export const listenToJiraWebhook = async (request, reply) => {
     }
 
   } catch (error) {
-    console.error("Error processing Jira webhook:", error);
-    reply.status(500).send("Error processing Jira webhook.");
+    logger.error("Error processing Jira webhook:", error);
+    return new ErrorHandler(error, reply);
   }
 }
-export const getTransitionIds = async (ticketId) => {
+export const getTransitionIds = async (request,reply) => {
   try {
+    const {ticketId}=request.body;
     const response = await axios.get(
-      `${process.env.JIRA_BASE_URL}/rest/api/3/issue/10006/transitions`,
+      `${process.env.JIRA_BASE_URL}/rest/api/3/issue/${ticketId}/transitions`,
       {
         headers: {
           Authorization: `Basic ${Buffer.from(
@@ -98,7 +88,6 @@ export const getTransitionIds = async (ticketId) => {
       }
     );
 
-    // Map the transitions
     const transitions = response.data.transitions.map((transition) => ({
       id: transition.id,
       name: transition.name,
@@ -106,7 +95,7 @@ export const getTransitionIds = async (ticketId) => {
 
     return transitions;
   } catch (error) {
-    console.error("Error fetching transitions:", error);
-    throw new Error('Unable to fetch transition IDs');
+    logger.error("Error fetching transitions:", error);
+    return new ErrorHandler(error, reply);
   }
 };

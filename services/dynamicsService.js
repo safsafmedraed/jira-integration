@@ -1,4 +1,6 @@
 import axios from 'axios';
+import logger from '../logger/index.js';
+
 
 export const getDynamicsToken=async()=> {
   try {
@@ -9,7 +11,7 @@ export const getDynamicsToken=async()=> {
     });
     return response.data.access_token;
   } catch (error) {
-    console.error('Error fetching Dynamics token:', error);
+    logger.error('Error fetching Dynamics token:', error);
     throw error;
   }
 }
@@ -23,9 +25,9 @@ export const sendToDynamics=async(data)=> {
         'Content-Type': 'application/json',
       },
     });
-    console.log('Data successfully sent to Dynamics:', response.data);
+    logger.info('Data successfully sent to Dynamics:', response.data);
   } catch (error) {
-    console.error('Error sending data to Dynamics:', error);
+    logger.error('Error sending data to Dynamics:', error);
     throw error;
   }
 }

@@ -20,6 +20,8 @@
     "dotenv": "^16.4.7",
     "env-cmd": "^10.1.0",
     "fastify": "^5.2.0",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

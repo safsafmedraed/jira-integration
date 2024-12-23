@@ -5,6 +5,7 @@ import helmet from "@fastify/helmet";
 import dotenv from "dotenv";
 import Fastify from "fastify";
 import router from "./routes/index.js";
+import logger from "./logger/index.js";
 
 dotenv.config();
 
@@ -52,8 +53,8 @@ fastify.setNotFoundHandler((request, reply) => {
 
 fastify.listen({ port: process.env.PORT, host: "0.0.0.0" }, (err, address) => {
   if (err) {
-    // logger.log("error", err);
+    logger.log("error", err);
     process.exit(1);
   }
-//   logger.log("info", `Server started on ${address}`);
+  logger.log("info", `Server started on ${address}`);
 });

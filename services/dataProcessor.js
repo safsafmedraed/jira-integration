@@ -1,6 +1,7 @@
 
 import { getJiraTickets, updateJiraTicketStatus } from './jiraService.js';
 import { sendToDynamics } from './dynamicsService.js';
+import logger from '../logger/index.js';
 
 export const processJiraTickets=async()=> {
   try {
@@ -13,9 +14,9 @@ export const processJiraTickets=async()=> {
       await updateJiraTicketStatus(ticket.id);
     }
 
-    console.log('All tickets processed successfully.');
+    logger.info('All tickets processed successfully.');
   } catch (error) {
-    console.error('Error processing Jira tickets:', error);
+    logger.error('Error processing Jira tickets:', error);
     throw error;
   }
 }
@@ -25,9 +26,9 @@ const transformJiraData=(ticket)=> {
     id: ticket.id,
     key: ticket.key,
     fields: {
-      name: ticket.fields.customfield_12345, // Replace with actual field IDs
+      name: ticket.fields.customfield_12345, 
       address: ticket.fields.customfield_67890,
-      // Add other fields as required
+      
     },
   };
 }

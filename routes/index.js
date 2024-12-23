@@ -1,4 +1,4 @@
-import { verifyJiraWebhook } from "../middleware/authorization.js";
+import { authorizeJiraRequest } from "../middleware/authorization.js";
 import {
   getJiraTickets,
   getTransitionIds,
@@ -10,9 +10,9 @@ async function routes(fastify, options) {
   fastify.post("/transitions", getTransitionIds);
   fastify.post(
     "/webhook",
-    // {
-    //   preHandler: verifyJiraWebhook,
-    // },
+    {
+      preHandler: authorizeJiraRequest,
+    },
     listenToJiraWebhook
   );
 }
